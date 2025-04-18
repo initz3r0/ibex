@@ -1,0 +1,79 @@
+version: 2
+
+project_name: ibex
+
+env:
+  - GO111MODULE=on
+
+builds:
+  - id: ibex-darwin-amd64
+    binary: ibex
+    env:
+      - CGO_ENABLED=1
+      - CC=o64-clang
+      - CXX=o64-clang++
+    main: ./main.go
+    ldflags:
+      - -s -w -X main.version={{ .Tag }}
+    goos:
+      - darwin
+    goarch:
+      - amd64
+
+  - id: ibex-darwin-arm64
+    binary: ibex
+    env:
+      - CGO_ENABLED=1
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    main: ./main.go
+    ldflags:
+      - -s -w -X main.version={{ .Tag }}
+    goos:
+      - darwin
+    goarch:
+      - arm64
+
+  - id: ibex-linux
+    binary: ibex
+    env:
+      - CGO_ENABLED=1
+    main: ./main.go
+    ldflags:
+      - -s -w -X main.version={{ .Tag }}
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+  - id: ibex-windows-x64
+    ldflags:
+      - -buildmode=exe
+      - -s -w -X main.version={{ .Tag }}
+    binary: ibex
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    main: ./main.go
+    goos:
+      - windows
+    goarch:
+      - amd64
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+snapshot:
+  name_template: SNAPSHOT-{{.ShortCommit}}
+
+brews:
+  - repository:
+      owner: initz3r0
+      name: homebrew-tap
+    name: ibex
+    homepage: "https://github.com/initz3r0/ibex"
+    description: "An iOS Backup Extraction Tool"
+    license: "MIT"
+    test: |
+      system "#{bin}/ibex --help"
+    install: |
+      bin.install "ibex"
